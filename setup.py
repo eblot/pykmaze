@@ -23,7 +23,6 @@
 
 from distutils.core import setup
 
-
 def _read(fname):
     import os
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -35,7 +34,7 @@ setup(
     author='Emmanuel Blot',
     author_email='emmanuel.blot@free.fr',
     license='MIT',
-    keywords = 'keymaze kml kmz gps',
+    keywords = 'keymaze geonaute kml kmz gps',
     url='http://github.com/eblot/pykmaze',
     download_url='https://github.com/eblot/pykmaze/tarball/master',
     packages=['pykmaze'],
