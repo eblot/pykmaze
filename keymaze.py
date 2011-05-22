@@ -12,12 +12,14 @@
 
 from util import hexdump, inttime
 import datetime
-#import pprint
-import serial
 import struct
 import sys
 import time
-
+try:
+    import serial
+except ImportError:
+    print >> sys.stderr, "Missing serial module"
+    sys.exit(1)
 
 class KeymazePort(object):
     """Interface w/ the Keymaze device, through a serial stream which is itself
@@ -46,8 +48,14 @@ class KeymazePort(object):
     def __init__(self, log, portname):
         self.log = log
         try:
-            self._port = serial.Serial(port=portname,
-                                       baudrate=self.KM_BAUDRATE)
+            try:
+                from serialext import SerialExpander
+                serialclass = SerialExpander.serialclass(portname)
+            except ImportError:
+                print "No pyftdi"
+                serialclass = serial.Serial
+            self._port = serialclass(port=portname,
+                                     baudrate=self.KM_BAUDRATE)
             if not self._port.isOpen:
                 self._port.open()
         except serial.serialutil.SerialException:
@@ -215,6 +223,8 @@ class KeymazePort(object):
         if debug:
             self.log.debug("Read:\n%s" % hexdump(resp))
         self._port.timeout = 1
+        if not len(cksum):
+            raise AssertionError('Communication error')
         rcksum = ord(cksum)
         dcksum = self._calc_checksum(resp_h[1:], resp)
         if rcksum != dcksum:
